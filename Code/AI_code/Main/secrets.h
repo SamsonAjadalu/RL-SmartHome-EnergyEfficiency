@@ -1,4 +1,4 @@
-// Use this file to store all of the private credentials 
+// file to store all of the private credentials 
 // and connection details
 
 #define SECRET_SSID ""        // replace with your WiFi network name
