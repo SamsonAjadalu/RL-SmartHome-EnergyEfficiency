@@ -123,7 +123,7 @@ void loop() {
   if (!manualOverride && hasEnvironmentChanged(tempC, motion_data)) {
     sendDataToAI(tempC, motion_data, lightState, fanSpeed);
     String ai_action = getAIAction();  // Get the action from Flask/AI
-    executeAIAction(ai_action);        // Perform the action
+    if (ai_action.length() > 0) executeAIAction(ai_action);
   }
 
   // Reset manualOverride flag after the AI takes control
@@ -177,7 +177,16 @@ String getAIAction() {
   int statusCode = client.responseStatusCode();
   if (statusCode == 200) {
     String response = client.responseBody();
-    return response;  // Example return, this will be AI's action
+    int key = response.indexOf("\"action\"");
+    int colon = key < 0 ? -1 : response.indexOf(':', key + 8);
+    int firstQuote = colon < 0 ? -1 : response.indexOf('"', colon + 1);
+    int lastQuote = firstQuote < 0 ? -1 : response.indexOf('"', firstQuote + 1);
+    if (lastQuote < 0) return "";
+    String action = response.substring(firstQuote + 1, lastQuote);
+    if (action == "turn_off_fan" || action == "turn_on_fan_low" ||
+        action == "turn_on_fan_high" || action == "turn_off_light" ||
+        action == "turn_on_light") return action;
+    return "";
   }
   return "";
 }
